@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="./trystero-nostr.min.js" type="module"></script>
+    <title>chat with friends</title>
+</head>
+<body>
+    <input type="text" placeholder="Username" id="username">
+    <input type="text" placeholder="Room Id" id="roomId">
+    <button>join</button>
+
+<textarea  id="history"></textarea>
+<input type="text" placeholder="type a message" id="message">
+<button>Send</button>
+
+<script type="module">
+    inport * as trystero from "./trystero-nostr.min.js"
+    function getUsername() {
+        return document.getElementById("username").value || "?"
+    }
+
+    function setUsername(username) {
+        document.getElementById("username").value = username;
+    }
+
+    function getRoomId() {
+        return document.getElementById("roomId").value || "?"
+    }
+
+    function setRoomId(roomId) {
+        document.getElementById("roomId").value = roomId;
+    }
+
+    function getMessage() {
+        return document.getElementById("message").value || ""
+    }
+
+    function setMessage(message) {
+        document.getElementById("message").value = message;
+    }
+
+    function say(username, message){
+        document.getElementById("history").value += `${username}: ${message}\n`;
+    }
+
+    say("system", "hello world!");
+
+    function joinRoom(){
+
+        let roomId =getRoomId();
+
+        let room = trystero.joinRoom({
+            appId: "notyours/chat"
+        }, roomId)
+    }
+
+    let [
+        sendMessage,
+        onMessage,
+    ] = room.makeAction(message);
+
+    document.getElementById("send").onclick = function() {
+        let username = getUsername();
+        let message = getMessage();
+
+        sendMessage({username, message});
+        say(username, message);
+        setMessage("");
+
+    }
+
+    onMessage(function({username, message}) {
+        say(username, message)
+    })
+
+    document.getElementById("join").onclick = joinRoom;
+</script>
+
+
+</body>
+
+
+
+</html>
