@@ -16,7 +16,7 @@
       import * as trystero from "./trystero-nostr.min.js";
 
       function getUsername() {
-        return document.getElementById("username").value || "?";
+        return document.getElementById("username").value || trystero.selfId;
       }
 
       function setUsername(username) {
@@ -51,7 +51,8 @@
         say("System", `Joining room ${roomId} as ${getUsername()}`);
 
         let room = trystero.joinRoom({
-          appId: "mister-mcgee/chat"
+          appId: "mister-mcgee/chat",
+          relayRedundancy: 10,
         }, roomId)
 
         let [
@@ -70,11 +71,52 @@
 
         onMessage(function({username, message}) {
           say(username, message);
+        })        
+
+        room.onPeerJoin(peerId => {
+          let username = getUsername();
+          sendMessage({username, message: `Hello! ${peerId}`});
+          say(username, `Hello! ${peerId}`);
+        })
+
+        room.onPeerLeave(peerId => {
+          let username = getUsername();
+          sendMessage({username, message: `Bye! ${peerId}`});
+          say(username, `Bye! ${peerId}`);
         })
       }
 
       document.getElementById("join").onclick = joinRoom;
 
     </script>
+
+    <style>
+
+      body {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 512px;
+        justify-content: center;
+      }
+
+      * {
+        font-size: 16px;
+        background: rgb(0, 0, 0);
+        color: rgb(9, 128, 11);
+        font-family: monospace;
+      }
+
+      #history {
+        width: 100%;
+        height: 256px;
+        padding: 8px;
+      }
+
+      #message {
+        flex-grow: 1
+      }
+
+    </style>
   </body>
 </html>
